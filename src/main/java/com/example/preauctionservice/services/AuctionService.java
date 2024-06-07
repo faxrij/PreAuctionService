@@ -6,7 +6,6 @@ import com.example.preauctionservice.dto.AuctionRequest;
 import com.example.preauctionservice.events.TraysCreatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.coyote.BadRequestException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -46,11 +45,11 @@ public class AuctionService {
         }
     }
 
-    public void createAuction(AuctionRequest auctionRequest) throws BadRequestException {
+    public void createAuction(AuctionRequest auctionRequest) throws Exception {
         LocalDateTime now = LocalDateTime.now();
 
         if (auctionRequest.getStartTime().isBefore(now) || auctionRequest.getReadyTime().isBefore(now)) {
-            throw new BadRequestException();
+            throw new Exception();
         }
 
         if (lastAuctionCreatedDate == null || Duration.between(lastAuctionCreatedDate, now).toHours() >= 23) {
