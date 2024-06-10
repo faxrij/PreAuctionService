@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrayService {
 
-    private long trayId;
+    private long trayId = 1;
     @Getter
     private List<Tray> trays = new ArrayList<>();
 

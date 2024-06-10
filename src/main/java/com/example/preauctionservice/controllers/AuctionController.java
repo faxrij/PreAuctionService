@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auction")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuctionController {
 
     private final AuctionService auctionService;
