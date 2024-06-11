@@ -1,20 +1,23 @@
 package com.example.preauctionservice.events;
 
 import com.example.preauctionservice.domain.Tray;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class TraysCreatedEvent {
 
-    private Long auction_id;
+    private String auction_id;
     private LocalDateTime auction_ready_time;
-    private LocalDateTime auction_start_time;
     private List<Tray> trays;
+    private String auction_status;
+
+    public TraysCreatedEvent(String auctionId, LocalDateTime auctionReadyTime, List<Tray> trays) {
+        auction_id = auctionId;
+        auction_ready_time = auctionReadyTime;
+        this.trays = trays;
+        auction_status = "ready";
+    }
 }

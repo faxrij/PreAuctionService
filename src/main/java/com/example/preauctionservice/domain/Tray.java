@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Tray {
 
-    private long tray_id;
+    private String tray_id;
     private LocalDateTime tray_entry_time;
     private String fish_type;
     private double weight;

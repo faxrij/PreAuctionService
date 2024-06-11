@@ -9,8 +9,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -18,27 +20,28 @@ import java.util.List;
 public class AuctionService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private long auctionId;
+    private String auctionId;
     private LocalDateTime lastAuctionCreatedDate;
     private final TrayService trayService;
     private LocalDateTime auction_ready_time;
-    private LocalDateTime auction_start_time;
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int RANDOM_PART_LENGTH = 7;
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 
     public AuctionService(KafkaTemplate<String, Object> kafkaTemplate, TrayService trayService) {
         this.kafkaTemplate = kafkaTemplate;
         this.trayService = trayService;
-        auctionId = 0;
+        this.auctionId = generateUniqueAuctionId();
     }
 
     public void startAuction() {
         List<Tray> trays = trayService.getTrays();
 
-        TraysCreatedEvent event = new TraysCreatedEvent(auctionId, auction_ready_time, auction_start_time, trays);
+        TraysCreatedEvent event = new TraysCreatedEvent(auctionId, auction_ready_time, trays);
 
         try {
             String jsonEvent = CustomJsonSerializer.serializeTraysCreatedEvent(event);
-            kafkaTemplate.send("traysCreatedTopic", jsonEvent);
-            System.out.println(jsonEvent);
+            kafkaTemplate.send("auction_ready_event", jsonEvent);
             trayService.emptyTrays();
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
@@ -53,10 +56,26 @@ public class AuctionService {
         }
 
         if (lastAuctionCreatedDate == null || Duration.between(lastAuctionCreatedDate, now).toHours() >= 23) {
-            auctionId += 1;
+            auctionId = generateUniqueAuctionId();
             lastAuctionCreatedDate = now;
             auction_ready_time = auctionRequest.getReadyTime();
-            auction_start_time = auctionRequest.getStartTime();
         }
     }
+
+    private String generateRandomString() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder builder = new StringBuilder(RANDOM_PART_LENGTH);
+        for (int i = 0; i < RANDOM_PART_LENGTH; i++) {
+            int character = random.nextInt(ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
+    }
+
+    private String generateUniqueAuctionId() {
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+        String randomPart = generateRandomString();
+        return timestamp + randomPart;
+    }
+
 }
