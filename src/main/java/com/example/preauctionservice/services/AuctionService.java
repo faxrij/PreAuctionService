@@ -3,7 +3,7 @@ package com.example.preauctionservice.services;
 import com.example.preauctionservice.configs.CustomJsonSerializer;
 import com.example.preauctionservice.domain.Tray;
 import com.example.preauctionservice.dto.AuctionRequest;
-import com.example.preauctionservice.events.TraysCreatedEvent;
+import com.example.preauctionservice.events.AuctionReadyEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -37,7 +37,7 @@ public class AuctionService {
     public void startAuction() {
         List<Tray> trays = trayService.getTrays();
 
-        TraysCreatedEvent event = new TraysCreatedEvent(auctionId, auction_ready_time, trays);
+        AuctionReadyEvent event = new AuctionReadyEvent(auctionId, auction_ready_time, trays);
 
         try {
             String jsonEvent = CustomJsonSerializer.serializeTraysCreatedEvent(event);
