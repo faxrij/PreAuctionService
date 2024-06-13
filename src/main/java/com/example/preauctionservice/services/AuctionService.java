@@ -51,7 +51,7 @@ public class AuctionService {
     public void createAuction(AuctionRequest auctionRequest) throws Exception {
         LocalDateTime now = LocalDateTime.now();
 
-        if (auctionRequest.getStartTime().isBefore(now) || auctionRequest.getReadyTime().isBefore(now)) {
+        if (auctionRequest.getReadyTime().isBefore(now)) {
             throw new Exception();
         }
 
@@ -77,5 +77,4 @@ public class AuctionService {
         String randomPart = generateRandomString();
         return timestamp + randomPart;
     }
-
 }

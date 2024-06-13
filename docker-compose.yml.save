@@ -1,0 +1,10 @@
+pre-auction-app:
+    image: fahri12/preauctionservice:mydocker
+    container_name: pre-auction-app
+    ports:
+
+"8081:8080"
+  depends_on:
+broker
+environment:
+  bootstrap_servers: KAFKA_BOOTSTRAP_SERVERS=kafka:9092
